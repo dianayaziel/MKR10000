@@ -1,0 +1,48 @@
+#include <SPI.h>
+#include <WiFi101.h>
+
+char ssid[] = "INFINITUMXXXX";  // Tu nombre de red WiFi
+char pass[] = "PasswordeWIFI";    // Tu contraseña de red WiFi  // your network password
+int status = WL_IDLE_STATUS;    // the Wi-Fi radio's status
+
+WiFiServer server(23);
+
+const int ledPin = 3;
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+
+  // Attempt to connect to Wi-Fi network:
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.println(ssid);
+    status = WiFi.begin(ssid, pass);
+    delay(10000);
+  }
+  
+  // Start the TCP/IP server
+  server.begin();
+  printWiFiStatus();
+}
+
+void loop() {
+  WiFiClient client = server.available();
+  
+  if (client) {
+    if (client.available()) {
+      int brightness = client.parseInt();
+      analogWrite(ledPin, brightness);
+      client.print("LED brightness set to ");
+      client.println(brightness);
+    }
+  }
+}
+
+void printWiFiStatus() {
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+}
