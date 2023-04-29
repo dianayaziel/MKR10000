@@ -1,0 +1,25 @@
+% Configurar conexión TCP/IP
+arduinoIP = '192.xxx.x.xx';
+tcpipClient = tcpip(arduinoIP, 23, 'NetworkRole', 'client');
+set(tcpipClient, 'Timeout', 30);
+fopen(tcpipClient);
+
+% Configurar pin PWM
+ledPin = 'D3';
+
+% Brillo del LED entre 0 y 255
+brightness = 0; % Ajusta este valor para cambiar el brillo del LED
+
+% Enviar comando para configurar el pin PWM
+fwrite(tcpipClient, ['configPWMPin ' ledPin]);
+
+% Enviar comando para establecer el brillo del LED
+fwrite(tcpipClient, ['setBrightness ' ledPin ' ' num2str(brightness)]);
+
+% Leer respuesta del Arduino
+pause(1);
+response = char(fread(tcpipClient, tcpipClient.BytesAvailable))';
+disp(['Respuesta de Arduino: ' response]);
+
+% Cerrar conexión
+fclose(tcpipClient);
